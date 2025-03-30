@@ -57,7 +57,12 @@ export const HostSelectionView: FC = () => {
           <HostSelectionDropdown
             disabled={isScanning}
             currentSettings={settings}
-            setHost={(value) => { settingsManager.update((settings) => { settings.currentHostId = value; }); }}
+            hostList={settings.hostList} // Pass the list of hosts
+            setHost={(value) => {
+              settingsManager.update((settings) => {
+                settings.currentHostId = value; // Update the current host
+              });
+            }}
           />
         </Field>
         <Field
@@ -78,6 +83,14 @@ export const HostSelectionView: FC = () => {
         >
           <AddHostButton
             disabled={isScanning}
+            onAddHost={(newHost) => {
+              settingsManager.update((settings) => {
+                if (!settings.hostList) {
+                  settings.hostList = []; // Initialize hostList if not present
+                }
+                settings.hostList.push(newHost); // Add the new host
+              });
+            }}
           />
         </Field>
         <Field
@@ -89,8 +102,8 @@ export const HostSelectionView: FC = () => {
             currentHost={settings.currentHostId}
             onForget={(value) => {
               settingsManager.update((settings) => {
-                // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-                delete settings.hostSettings[value];
+                // Remove the host from the list
+                settings.hostList = settings.hostList.filter((host) => host.id !== value);
                 settings.currentHostId = null;
               });
             }}
